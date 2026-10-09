@@ -1,0 +1,29 @@
+# === Django & Local Database ===
+backend/db.sqlite3
+
+# === Python / Compiled files ===
+**/__pycache__/
+.env
+.env.local
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+
+# === AI Code Assistants & IDEs ===
+CLAUDE_PROJECT_CONTEXT.md
+.claude/
+.claude_code/
+.anthropic/
+.vscode/
+.idea/
+
+# === OS & System Files ===
+.DS_Store
+Thumbs.db
+
+# === Model weights (bind-mounted by docker-compose) ===
+weights/

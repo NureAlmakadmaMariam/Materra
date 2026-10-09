@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materra · Класифікація будівельних відходів за допомогою ШІ</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:        #2d6a4f;
+  --green-light:  #52b788;
+  --green-pale:   #d8f3dc;
+  --green-bg:     #f0faf4;
+  --white:        #ffffff;
+  --bg:           #f4f7f5;
+  --surface:      #ffffff;
+  --border:       #d1dbd6;
+  --text:         #1a2e25;
+  --muted:        #6b8c77;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── Nav ──────────────────────────────────────────────────────────────────── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  height: 62px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  color: var(--green);
+  font-weight: 900;
+  font-size: 1.2rem;
+  letter-spacing: -0.4px;
+}
+
+.brand-icon {
+  width: 34px; height: 34px;
+  background: var(--green);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-ghost {
+  padding: 7px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+.btn-primary {
+  padding: 7px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--green);
+  text-decoration: none;
+  transition: filter 0.15s;
+}
+.btn-primary:hover { filter: brightness(1.1); }
+
+/* ── Hero ─────────────────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 6rem 2rem 5rem;
+  text-align: center;
+  background: linear-gradient(160deg, #f0faf4 0%, #ffffff 50%, #e8f5ec 100%);
+}
+
+/* decorative blobs */
+.hero::before,
+.hero::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: var(--green-pale);
+  opacity: 0.55;
+  filter: blur(60px);
+  pointer-events: none;
+}
+.hero::before { width: 520px; height: 520px; top: -180px; left: -120px; }
+.hero::after  { width: 420px; height: 420px; bottom: -140px; right: -100px; }
+
+.hero-inner {
+  position: relative;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-pale);
+  color: var(--green);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 99px;
+  margin-bottom: 1.5rem;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -1px;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+}
+
+.hero-title .accent { color: var(--green); }
+
+.hero-sub {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.65;
+}
+
+.hero-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+}
+
+.btn-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.875rem 2rem;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: filter 0.15s, transform 0.1s;
+  box-shadow: 0 4px 16px rgba(45,106,79,0.28);
+}
+.btn-cta-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+
+.btn-cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.875rem 2rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-cta-ghost:hover { border-color: var(--green); color: var(--green); }
+
+/* ── Features ─────────────────────────────────────────────────────────────── */
+.features {
+  padding: 5rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-label {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--green-light);
+  margin-bottom: 0.875rem;
+}
+
+.section-title {
+  text-align: center;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin-bottom: 3rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.feature-card:hover {
+  box-shadow: 0 8px 32px rgba(45,106,79,0.10);
+  transform: translateY(-3px);
+}
+
+.feature-icon {
+  width: 48px; height: 48px;
+  background: var(--green-bg);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1.125rem;
+}
+
+.feature-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.feature-desc {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── How it works ─────────────────────────────────────────────────────────── */
+.how {
+  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.how .section-label { color: var(--green-light); }
+.how .section-title { color: #fff; margin-bottom: 2.5rem; }
+
+.steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.step {
+  flex: 1;
+  min-width: 180px;
+  max-width: 220px;
+  padding: 0 1rem;
+  position: relative;
+}
+
+.step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -10px;
+  top: 22px;
+  color: rgba(255,255,255,0.35);
+  font-size: 1.25rem;
+}
+
+.step-num {
+  width: 44px; height: 44px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 auto 1rem;
+}
+
+.step-text {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.5;
+}
+
+/* ── Final CTA ────────────────────────────────────────────────────────────── */
+.final-cta {
+  padding: 5rem 2rem;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.final-cta h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 1rem;
+}
+
+.final-cta p {
+  color: var(--muted);
+  margin-bottom: 2.25rem;
+  font-size: 1rem;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+@media (max-width: 600px) {
+  .hero { padding: 4rem 1.25rem 3.5rem; }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .btn-cta-primary, .btn-cta-ghost { justify-content: center; }
+  .steps { flex-direction: column; align-items: center; }
+  .step:not(:last-child)::after { content: '↓'; right: auto; top: auto; bottom: -18px; left: 50%; transform: translateX(-50%); }
+  .step { max-width: 100%; padding-bottom: 2.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────────────────────── -->
+<nav class="nav">
+  <a href="{% url 'home' %}" class="brand">
+    <div class="brand-icon">M</div>
+    Materra
+  </a>
+  <div class="nav-links">
+    <a href="{% url 'login' %}" class="btn-ghost">Увійти</a>
+    <a href="{% url 'register' %}" class="btn-primary">Зареєструватися</a>
+  </div>
+</nav>
+
+<!-- ── Hero ───────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Розпізнавання відходів за допомогою ШІ
+    </div>
+
+    <h1 class="hero-title">
+      Класифікація будівельних відходів<br>
+      <span class="accent">автоматично та точно</span>
+    </h1>
+
+    <p class="hero-sub">
+      Завантажте фото будівельного сміття — Materra визначить тип матеріалу,
+      надасть рекомендації з переробки та оцінить екологічний вплив.
+    </p>
+
+    <div class="hero-cta">
+      <a href="{% url 'register' %}" class="btn-cta-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Розпочати безкоштовно
+      </a>
+      <a href="{% url 'login' %}" class="btn-cta-ghost">
+        Увійти до акаунту
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ───────────────────────────────────────────────────────────── -->
+<section class="features">
+  <p class="section-label">Можливості</p>
+  <h2 class="section-title">Все необхідне для роботи з відходами</h2>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🏗️</div>
+      <div class="feature-title">AI-розпізнавання</div>
+      <p class="feature-desc">
+        Класифікує 14 типів будівельних відходів — від бетону та цегли до небезпечних матеріалів. Результат за кілька секунд.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">📄</div>
+      <div class="feature-title">Автоматичні PDF-звіти</div>
+      <p class="feature-desc">
+        Кожен аналіз генерує готовий звіт із типом відходів, рівнем впевненості, рекомендаціями та екологічним балом.
+      </p>
+    </div>
+
+    <div class="feature-card">
+      <div class="feature-icon">🌱</div>
+      <div class="feature-title">Екологічний бал</div>
+      <p class="feature-desc">
+        Оцінка від 1 до 10 на основі реальних даних ЄС про переробку — допомагає обрати найвідповідальніший шлях утилізації.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ───────────────────────────────────────────────────────── -->
+<section class="how">
+  <p class="section-label">Як це працює</p>
+  <h2 class="section-title">Три кроки до результату</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <p class="step-text"><strong style="color:#fff">Завантажте фото</strong><br>JPEG, PNG або WebP до 10 МБ</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <p class="step-text"><strong style="color:#fff">ШІ аналізує</strong><br>Модель визначає тип матеріалу та впевненість</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <p class="step-text"><strong style="color:#fff">Отримайте звіт</strong><br>Завантажте PDF з усіма рекомендаціями</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Final CTA ──────────────────────────────────────────────────────────── -->
+<section class="final-cta">
+  <h2>Готові розпочати?</h2>
+  <p>Зареєструйтесь безкоштовно та завантажте перше зображення вже зараз.</p>
+  <div class="hero-cta">
+    <a href="{% url 'register' %}" class="btn-cta-primary">Створити акаунт</a>
+    <a href="{% url 'login' %}" class="btn-cta-ghost">Увійти</a>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  © 2026 Materra — AI Construction Waste Recognition &nbsp;·&nbsp; Almakadma M.I., Popova Y.R.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Materra · Дашборд</title>
+<style>
+/* ── Reset + tokens ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green:       #2d6a4f;
+  --green-light: #52b788;
+  --green-pale:  #d8f3dc;
+  --green-bg:    #f0faf4;
+  --white:       #ffffff;
+  --bg:          #f4f7f5;
+  --surface:     #ffffff;
+  --border:      #d1dbd6;
+  --text:        #1a2e25;
+  --muted:       #6b8c77;
+  --error:       #e63946;
+  --amber:       #f4a261;
+  --amber-bg:    #fff8e1;
+  --amber-text:  #7a5c00;
+  --blue:        #3b82f6;
+  --blue-bg:     #dbeafe;
+  --blue-text:   #1e40af;
+  --red-bg:      #fde8e8;
+  --red-text:    #b91c1c;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background 0.25s, color 0.25s;
+}
+
+/* ── Dark mode ───────────────────────────────────────────────────────────── */
+body.dark {
+  --bg:          #0f172a;
+  --surface:     #1e293b;
+  --border:      #334155;
+  --text:        #f1f5f9;
+  --muted:       #94a3b8;
+  --green:       #4ade80;
+  --green-light: #86efac;
+  --green-pale:  #14532d;
+  --green-bg:    #0d2b1a;
+  --error:       #f87171;
+  --amber-bg:    #1c1500;
+  --amber-text:  #fde68a;
+  --blue-bg:     #1e3a5f;
+  --blue-text:   #93c5fd;
+  --red-bg:      #450a0a;
+  --red-text:    #fca5a5;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.page-wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 60px;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.brand {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+.brand-dot {
+  width: 8px; height: 8px;
+  background: var(--green-light);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.header-right { display: flex; align-items: center; gap: 0.625rem; }
+
+.btn-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  border: none;
+  transition: filter 0.15s;
+}
+.btn-header:hover:not(:disabled) { filter: brightness(1.08); }
+.btn-header-primary { background: var(--green); color: #fff; }
+.btn-header-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.btn-header-ghost:hover { border-color: var(--green); color: var(--green); }
+
+.theme-btn {
+  font-size: 1.05rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 9px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  line-height: 1;
+}
+.theme-btn:hover { border-color: var(--green); }
+
+/* ── Section spacing ─────────────────────────────────────────────────────── */
+.section { margin-top: 1.75rem; }
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.875rem;
+}
+
+/* ── Card base ───────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+/* ── KPI grid ────────────────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 900px)  { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .kpi-grid { grid-template-columns: 1fr; } }
+
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  transition: background 0.25s, border-color 0.25s;
+}
+.kpi-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.kpi-value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+}
+.kpi-value.green  { color: var(--green); }
+.kpi-value.amber  { color: var(--amber); }
+.kpi-value.red    { color: var(--error); }
+.kpi-sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.125rem;
+}
+
+/* ── History table ───────────────────────────────────────────────────────── */
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.history-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.count-pill {
+  display: inline-block;
+  background: var(--green-pale);
+  color: var(--green);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  margin-left: 0.5rem;
+}
+body.dark .count-pill { background: var(--green-pale); color: var(--green); }
+
+.table-wrap { width: 100%; }
+
+table {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+thead tr {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+body.dark thead tr { background: rgba(255,255,255,0.03); }
+th {
+  text-align: center;
+  padding: 0.65rem 1rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+th.col-img   { width: 10%; }
+th.col-date  { width: 18%; white-space: nowrap; }
+th.col-type  { width: 18%; }
+th.col-stat  { width: 22%; }
+th.col-acts  { width: 32%; white-space: nowrap; }
+td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  text-align: center;
+}
+td.col-date, td.col-acts { white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.2s ease; }
+tbody tr:nth-child(even) { background: rgba(0,0,0,0.018); }
+body.dark tbody tr:nth-child(even) { background: rgba(255,255,255,0.025); }
+tbody tr:hover { background: var(--green-bg) !important; }
+
+/* ── Thumbnail ───────────────────────────────────────────────────────────── */
+.thumb {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  display: block;
+  margin: 0 auto;
+  background: var(--bg);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: zoom-in;
+}
+.thumb:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+/* ── Image lightbox ──────────────────────────────────────────────────────── */
+#imgLightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  cursor: zoom-out;
+  backdrop-filter: blur(4px);
+  transition: opacity 0.2s;
+}
+#imgLightbox.hidden { display: none; }
+#imgLightbox img {
+  max-width: 90vw;
+  max-height: 88vh;
+  border-radius: 10px;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.6);
+  cursor: default;
+  object-fit: contain;
+}
+
+.thumb-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+
+/* ── Status badges ───────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge-done          { background: rgba(82,183,136,0.15); color: var(--green); }
+.badge-review_needed { background: var(--amber-bg);       color: var(--amber-text); }
+.badge-failed        { background: var(--red-bg);         color: var(--red-text); }
+.badge-pending       { background: var(--bg);             color: var(--muted); border: 1px solid var(--border); }
+.badge-processing    { background: var(--blue-bg);        color: var(--blue-text); }
+
+/* ── Action buttons ──────────────────────────────────────────────────────── */
+.actions { display: flex; gap: 0.4rem; flex-wrap: nowrap; align-items: center; justify-content: center; }
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 7px;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: var(--surface);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.action-btn:hover { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+.action-btn-pdf {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+.action-btn-pdf:hover { filter: brightness(1.12); color: #fff; border-color: var(--green); background: var(--green); }
+.action-btn-delete { color: var(--error); border-color: transparent; background: var(--red-bg); }
+.action-btn-delete:hover { background: var(--error); color: #fff; border-color: var(--error); }
+.action-btn-delete:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── Pagination ──────────────────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.page-btn {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.page-btn:hover { border-color: var(--green); background: var(--green-bg); }
+.page-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+.page-info { font-size: 0.8rem; color: var(--muted); padding: 0 0.25rem; }
+.page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.page-size-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+.page-size-label { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; }
+.page-size-select {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+.page-size-select:focus { border-color: var(--green); }
+
+/* ── Filter bar ──────────────────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 0 1.25rem;
+}
+.filter-dropdown {
+  position: relative;
+}
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--green); color: var(--green); }
+.filter-dropdown.open .filter-btn { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+.filter-chevron {
+  transition: transform 0.2s ease;
+}
+.filter-dropdown.open .filter-chevron { transform: rotate(180deg); }
+.filter-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 200;
+  min-width: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  padding: 0.5rem 0;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.filter-dropdown.open .filter-panel { display: block; }
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.filter-option:hover { background: var(--green-bg); }
+.filter-option input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--green);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.filter-clear {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.filter-clear:hover { color: var(--error); border-color: var(--error); background: var(--red-bg); }
+.sort-th {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+.sort-th:hover { color: var(--green); }
+.sort-th.sort-active { color: var(--text); }
+.sort-icon {
+  font-style: normal;
+  font-size: 0.7em;
+  opacity: 0.45;
+  margin-left: 3px;
+}
+.sort-th.sort-active .sort-icon { opacity: 1; color: var(--green); }
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 3.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+}
+.empty-icon { font-size: 3rem; }
+.empty-title { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.empty-sub { font-size: 0.875rem; color: var(--muted); max-width: 320px; }
+
+/* ── Modal overlay ───────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+  opacity: 1;
+  transition: opacity 0.2s;
+}
+.modal-overlay.hidden { display: none; }
+
+.modal-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: min(500px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  transition: background 0.25s;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.modal-brand {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: -0.3px;
+}
+.modal-sub { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.modal-close:hover { color: var(--text); background: var(--bg); }
+.modal-body { padding: 1.5rem; }
+
+/* ── Dropzone (modal) ────────────────────────────────────────────────────── */
+.dropzone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s, background 0.2s;
+  user-select: none;
+}
+.dropzone:hover,
+.dropzone.drag-over { border-color: var(--green); background: var(--green-bg); }
+.dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.dz-icon  { font-size: 2rem; margin-bottom: 0.6rem; }
+.dz-title { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
+.dz-hint  { font-size: 0.78rem; color: var(--muted); }
+
+/* ── Preview (modal) ─────────────────────────────────────────────────────── */
+.m-preview {
+  display: none;
+  margin-top: 1rem;
+  text-align: center;
+}
+.m-preview img {
+  max-height: 160px;
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  object-fit: contain;
+}
+.m-preview-name { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; }
+
+/* ── Buttons (modal) ─────────────────────────────────────────────────────── */
+.btn-full {
+  display: block;
+  width: 100%;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s;
+  margin-top: 1rem;
+}
+.btn-full:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-full:hover:not(:disabled) { filter: brightness(1.07); }
+.btn-primary-full { background: var(--green); color: #fff; }
+.btn-ghost-full {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+/* ── Loading (modal) ─────────────────────────────────────────────────────── */
+.loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2.5rem 0;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--green-pale);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-msg { font-size: 0.875rem; color: var(--muted); font-weight: 500; }
+
+/* ── Result (modal) ──────────────────────────────────────────────────────── */
+.m-result-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+.m-waste-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  transition: color 0.2s, font-size 0.2s;
+}
+.m-waste-name.unknown {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.m-conf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.35rem;
+}
+.m-conf-label { font-size: 0.78rem; color: var(--muted); }
+.m-conf-pct        { font-size: 0.95rem; font-weight: 700; color: var(--green); }
+.m-conf-pct.low    { color: var(--muted); }
+.m-conf-track {
+  height: 6px;
+  background: var(--green-pale);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  transition: background 0.3s;
+}
+.m-conf-track.low  { background: var(--bg); }
+.m-conf-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 99px;
+  width: 0%;
+  transition: width 0.6s ease, background 0.3s;
+}
+.m-conf-fill.low   { background: var(--border); }
+.m-eco-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.eco-high { background: var(--green-pale); color: var(--green); }
+.eco-mid  { background: var(--amber-bg);   color: var(--amber-text); }
+.eco-low  { background: var(--red-bg);     color: var(--red-text); }
+.eco-none { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+
+.m-review-note {
+  background: var(--amber-bg);
+  border: 1px solid rgba(244,162,97,0.35);
+  border-left: 3px solid var(--amber);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  color: var(--amber-text);
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.m-review-note-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+.m-review-note-body {
+  font-size: 0.77rem;
+  line-height: 1.55;
+  opacity: 0.85;
+}
+.m-error-box {
+  background: #fff5f5;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  color: var(--error);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+body.dark .m-error-box { background: #2d0f0f; border-color: #7f1d1d; }
+
+/* ── Util ────────────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }
+
+/* ── Profile button (avatar circle in header) ────────────────────────────── */
+.profile-btn {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.8rem; font-weight: 700;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: filter 0.15s;
+}
+.profile-btn:hover { filter: brightness(1.12); }
+
+/* ── Profile drawer ──────────────────────────────────────────────────────── */
+.profile-overlay {
+  position: fixed; inset: 0; z-index: 600;
+  display: flex; justify-content: flex-end;
+  background: rgba(0,0,0,0.38);
+  backdrop-filter: blur(2px);
+}
+.profile-overlay.hidden { display: none; }
+
+.profile-drawer {
+  background: var(--surface);
+  width: min(380px, 100vw);
+  height: 100%;
+  overflow-y: auto;
+  display: flex; flex-direction: column;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.18);
+  transition: background 0.25s;
+}
+
+.profile-drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  background: var(--surface);
+  transition: background 0.25s, border-color 0.25s;
+}
+.profile-drawer-title { font-size: 1rem; font-weight: 700; }
+.profile-drawer-close {
+  background: transparent; border: none;
+  font-size: 1.25rem; color: var(--muted);
+  cursor: pointer; padding: 4px 8px;
+  border-radius: 6px; line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+.profile-drawer-close:hover { color: var(--text); background: var(--bg); }
+
+.profile-drawer-body { padding: 1.5rem; flex: 1; }
+
+.profile-avatar-row {
+  display: flex; align-items: center; gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+.profile-avatar-lg {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff; font-size: 1.4rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.profile-user-name { font-size: 1rem; font-weight: 700; }
+.profile-user-email { font-size: 0.85rem; color: var(--muted); margin-top: 2px; }
+
+.profile-section-label {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); margin-bottom: 1rem;
+}
+
+.profile-field { margin-bottom: 1rem; }
+.profile-field label {
+  display: block; font-size: 0.85rem; font-weight: 600;
+  color: var(--text); margin-bottom: 0.375rem;
+}
+.profile-pw-wrap { position: relative; }
+.profile-pw-wrap input { padding-right: 2.75rem; }
+.profile-field input[type="password"],
+.profile-field input[type="text"] {
+  width: 100%;
+  padding: 0.6rem 0.875rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color 0.15s;
+  outline: none;
+}
+.profile-field input:focus { border-color: var(--green-light); }
+
+.profile-pw-eye {
+  position: absolute; right: 0.625rem; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  padding: 0.25rem; color: var(--muted);
+  display: flex; align-items: center;
+  border-radius: 4px; transition: color 0.15s;
+}
+.profile-pw-eye:hover { color: var(--green); }
+.profile-pw-eye svg { display: block; }
+
+.profile-field-error {
+  font-size: 0.78rem; color: var(--error);
+  margin-top: 0.25rem; display: none;
+}
+.profile-save-btn {
+  width: 100%; padding: 0.7rem;
+  background: var(--green); color: #fff;
+  border: none; border-radius: 8px;
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; margin-top: 0.5rem;
+  transition: background 0.15s;
+}
+.profile-save-btn:hover { background: #245a40; }
+.profile-save-btn:disabled { opacity: 0.6; cursor: default; }
+
+.profile-msg {
+  display: none; margin-top: 0.875rem;
+  padding: 0.6rem 0.875rem;
+  border-radius: 8px; font-size: 0.875rem;
+}
+.profile-msg.success {
+  background: var(--green-pale); color: var(--green);
+  border: 1px solid var(--green-light);
+}
+.profile-msg.error {
+  background: #fff0f0; color: var(--error);
+  border: 1px solid #fca5a5;
+}
+
+.profile-danger-zone {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.profile-danger-label {
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--error); margin-bottom: 1rem;
+}
+.delete-account-btn {
+  width: 100%; padding: 0.65rem;
+  background: transparent;
+  color: var(--error);
+  border: 1.5px solid var(--error);
+  border-radius: 8px;
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.delete-account-btn:hover { background: var(--error); color: #fff; }
+
+.delete-confirm-area {
+  margin-top: 1rem;
+}
+.delete-warning-box {
+  font-size: 0.85rem; color: var(--error);
+  padding: 0.75rem 0.875rem;
+  background: #fff0f0; border: 1px solid #fca5a5;
+  border-radius: 8px; margin-bottom: 1rem;
+}
+.delete-confirm-btn {
+  width: 100%; padding: 0.7rem;
+  background: var(--error); color: #fff;
+  border: none; border-radius: 8px;
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; margin-top: 0.5rem;
+  transition: background 0.15s;
+}
+.delete-confirm-btn:hover { background: #c0202d; }
+.delete-confirm-btn:disabled { opacity: 0.6; cursor: default; }
+.delete-cancel-btn {
+  width: 100%; padding: 0.65rem;
+  background: transparent; color: var(--muted);
+  border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; margin-top: 0.5rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+.delete-cancel-btn:hover { border-color: var(--muted); color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════════════════════════════════════════════════ -->
+<header class="site-header">
+  <a class="brand" href="/">MATERRA<div class="brand-dot"></div></a>
+  <div class="header-right">
+    <button class="btn-header btn-header-primary" id="newAnalysisBtn">+ Новий аналіз</button>
+    <button class="profile-btn" id="profileBtn" title="Профіль">{% if request.user.full_name %}{{ request.user.full_name|slice:":1"|upper }}{% else %}{{ request.user.email|slice:":1"|upper }}{% endif %}</button>
+    <a href="{% url 'logout' %}" class="btn-header btn-header-ghost" style="text-decoration:none;">Вийти</a>
+    <button class="theme-btn" id="themeBtn" title="Змінити тему">🌙</button>
+  </div>
+</header>
+
+<!-- ══════════ MAIN ════════════════════════════════════════════════════════ -->
+<div class="page-wrap">
+
+  <!-- KPI ROW ─────────────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Моя статистика</div>
+    <div class="kpi-grid">
+
+      <div class="kpi-card">
+        <div class="kpi-label">Всього аналізів</div>
+        <div class="kpi-value" id="kpi-total">{{ total_count }}</div>
+        <div class="kpi-sub"><span id="kpi-done">{{ done_count }}</span> завершено успішно</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">На перевірці</div>
+        <div class="kpi-value {% if review_count > 0 %}amber{% endif %}" id="kpi-review">{{ review_count }}</div>
+        <div class="kpi-sub">потребують підтвердження фахівця</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Середній екобал</div>
+        <div class="kpi-value {% if avg_eco_score is not None %}{% if avg_eco_score >= 7 %}green{% elif avg_eco_score >= 4 %}amber{% else %}red{% endif %}{% endif %}"
+             id="kpi-eco"
+             data-count="{{ eco_count }}"
+             data-sum="{{ eco_sum }}">
+          {% if avg_eco_score is not None %}
+            <span id="kpi-eco-val">{{ avg_eco_score }}</span><span id="kpi-eco-suffix" style="font-size:1rem;font-weight:500;opacity:.6">/10</span>
+          {% else %}
+            <span id="kpi-eco-val" style="color:var(--muted)">—</span><span id="kpi-eco-suffix" style="display:none">/10</span>
+          {% endif %}
+        </div>
+        <div class="kpi-sub" id="kpi-eco-sub">{% if avg_eco_score is not None %}по завершених аналізах{% else %}немає даних{% endif %}</div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-label">Небезпечні відходи</div>
+        <div class="kpi-value {% if hazardous_count > 0 %}red{% endif %}" id="kpi-hazardous">{{ hazardous_count }}</div>
+        <div class="kpi-sub">аналізи з небезпечними матеріалам</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HISTORY TABLE ───────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="card">
+      <div class="history-header">
+        <div>
+          <span class="history-title">Попередні звіти</span>
+          {% if total_count > 0 %}
+            <span class="count-pill" id="kpi-pill">{{ total_count }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Filter bar — client-side only, no form submission -->
+      <div class="filter-bar">
+
+        <!-- Тип відходів -->
+        <div class="filter-dropdown" id="fdType" data-filter-group="type">
+          <button type="button" class="filter-btn" onclick="toggleFd('fdType')">
+            Тип відходів
+            <span class="filter-count" id="fcType" style="display:none"></span>
+            <svg class="filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="filter-panel">
+            {% for code, label in waste_type_options %}
+            <label class="filter-option">
+              <input type="checkbox" data-group="type" value="{{ code }}">
+              {{ label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Статус -->
+        <div class="filter-dropdown" id="fdStatus" data-filter-group="status">
+          <button type="button" class="filter-btn" onclick="toggleFd('fdStatus')">
+            Статус
+            <span class="filter-count" id="fcStatus" style="display:none"></span>
+            <svg class="filter-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="filter-panel">
+            {% for code, label in status_options %}
+            <label class="filter-option">
+              <input type="checkbox" data-group="status" value="{{ code }}">
+              {{ label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button id="filterClear" class="filter-clear" style="display:none">✕ Скинути фільтри</button>
+
+      </div>
+
+      {% if rows %}
+      <div class="table-wrap">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th class="col-img">Зображення</th>
+              <th class="col-date sort-th sort-active" data-sort="date" data-dir="desc">
+                Дата / Час <span class="sort-icon">↓</span>
+              </th>
+              <th class="col-type sort-th" data-sort="type" data-dir="none">
+                Тип відходів <span class="sort-icon">⇅</span>
+              </th>
+              <th class="col-stat">Статус</th>
+              <th class="col-acts">Дії</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in rows %}
+            <tr data-ts="{{ item.obj.created_at|date:'c' }}"
+                data-type="{{ item.obj.top_class|default:'' }}"
+                data-label="{{ item.label_uk }}"
+                data-status="{{ item.obj.status }}"
+                data-hazardous="{{ item.is_hazardous|yesno:'true,false' }}"
+                data-eco="{{ item.eco_score|default:'' }}">
+              <td class="col-img">
+                {% if item.img_url %}
+                  <img class="thumb" src="{{ item.img_url }}" alt="Зображення відходів" loading="lazy">
+                {% else %}
+                  <div class="thumb-placeholder">🏗️</div>
+                {% endif %}
+              </td>
+              <td class="col-date" style="color:var(--muted)">
+                {{ item.obj.created_at|date:"d.m.Y" }}<br>
+                <span style="font-size:0.8em">{{ item.obj.created_at|date:"H:i" }}</span>
+              </td>
+              <td class="col-type" style="font-weight:600">
+                {% if item.obj.status == 'done' or item.obj.status == 'review_needed' %}
+                  {{ item.label_uk }}
+                {% else %}
+                  <span style="color:var(--muted)">—</span>
+                {% endif %}
+              </td>
+              <td class="col-stat">
+                <span class="badge badge-{{ item.obj.status }}">
+                  {% if item.obj.status == 'done' %}Готово
+                  {% elif item.obj.status == 'review_needed' %}На перевірці
+                  {% elif item.obj.status == 'failed' %}Помилка
+                  {% elif item.obj.status == 'processing' %}Обробляється
+                  {% else %}Очікує{% endif %}
+                </span>
+              </td>
+              <td class="col-acts">
+                <div class="actions">
+                  <button class="action-btn"
+                          onclick="openDetails('{{ item.obj.pk }}')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    Деталі
+                  </button>
+                  {% if item.has_report %}
+                  <a href="{% url 'reports:download' item.obj.pk %}"
+                     class="action-btn action-btn-pdf" target="_blank" rel="noopener">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    PDF
+                  </a>
+                  {% endif %}
+                  <button class="action-btn action-btn-delete"
+                          data-url="{% url 'analyses:detail' item.obj.pk %}"
+                          onclick="deleteAnalysis(this)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                    Видалити
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+            <tr id="noFilterResults" style="display:none">
+              <td colspan="5" style="text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:0.875rem">
+                Жодних результатів за обраними фільтрами
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination bar -->
+      <div class="page-size-bar" id="paginationBar">
+        <div class="page-size-label">
+          Рядків на сторінці:
+          <select class="page-size-select" id="pageSizeSelect">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="0">Всі</option>
+          </select>
+        </div>
+        <div class="pagination" id="paginationControls" style="margin-top:0"></div>
+      </div>
+
+      {% else %}
+      <!-- Empty state -->
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div class="empty-title">Аналізів ще немає</div>
+        <div class="empty-sub">Завантажте перше зображення будівельних відходів, щоб розпочати класифікацію.</div>
+        <button class="btn-header btn-header-primary" style="margin-top:.5rem" onclick="openModal()">
+          + Запустити перший аналіз
+        </button>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- ══════════ UPLOAD MODAL ════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="uploadModal" role="dialog" aria-modal="true">
+  <div class="modal-panel">
+
+    <div class="modal-header">
+      <div>
+        <div class="modal-brand">MATERRA</div>
+        <div class="modal-sub">Аналіз будівельних відходів</div>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="Закрити">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Step: Upload ──────────────────────────────────────────────────── -->
+      <div id="mUpload">
+        <div class="dropzone" id="mDropZone">
+          <input type="file" id="mFileInput" accept="image/jpeg,image/png,image/webp">
+          <div class="dz-icon">🏗️</div>
+          <div class="dz-title">Перетягніть або натисніть для вибору</div>
+          <div class="dz-hint">JPEG · PNG · WebP · до 10 МБ</div>
+        </div>
+        <div class="m-preview" id="mPreview">
+          <img id="mPreviewImg" alt="">
+          <div class="m-preview-name" id="mPreviewName"></div>
+        </div>
+        <button class="btn-full btn-primary-full" id="mUploadBtn" disabled>Аналізувати зображення</button>
+      </div>
+
+      <!-- Step: Loading ─────────────────────────────────────────────────── -->
+      <div id="mLoading" class="hidden">
+        <div class="loading-wrap">
+          <div class="spinner"></div>
+          <div class="loading-msg" id="mLoadingMsg">Завантаження...</div>
+        </div>
+      </div>
+
+      <!-- Step: Result ──────────────────────────────────────────────────── -->
+      <div id="mResult" class="hidden">
+        <div class="m-result-label">Результат аналізу</div>
+        <div class="m-waste-name" id="mWasteName">—</div>
+        <div class="m-conf-row">
+          <span class="m-conf-label">Впевненість моделі</span>
+          <span class="m-conf-pct" id="mConfPct">—</span>
+        </div>
+        <div class="m-conf-track" id="mConfTrack"><div class="m-conf-fill" id="mConfFill"></div></div>
+        <div id="mEcoBadge"></div>
+        <div class="m-review-note hidden" id="mReviewNote">
+          <div class="m-review-note-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Результат потребує перевірки фахівцем.
+          </div>
+          <div class="m-review-note-body">
+            Наш ШІ не зміг однозначно розпізнати матеріал. Ми надіслали знімок експертам для ручного підтвердження. Звіт оновиться автоматично.
+          </div>
+        </div>
+        <a id="mPdfLink" href="#" target="_blank" rel="noopener"
+           class="btn-full btn-primary-full hidden" style="text-align:center;text-decoration:none">
+          ↓ Завантажити PDF звіт
+        </a>
+        <button class="btn-full btn-ghost-full" id="mNewBtn">+ Новий аналіз</button>
+        <button class="btn-full btn-ghost-full" id="mDoneBtn">← Повернутись до дашборду</button>
+      </div>
+
+      <!-- Step: Error ───────────────────────────────────────────────────── -->
+      <div id="mError" class="hidden">
+        <div class="m-error-box" id="mErrorMsg">Помилка</div>
+        <button class="btn-full btn-ghost-full" id="mRetryBtn">← Спробувати знову</button>
+      </div>
+
+    </div><!-- /modal-body -->
+  </div><!-- /modal-panel -->
+</div><!-- /upload modal -->
+
+<!-- ══════════ IMAGE LIGHTBOX ═══════════════════════════════════════════════ -->
+<div id="imgLightbox" class="hidden" role="dialog" aria-modal="true" aria-label="Перегляд зображення">
+  <img id="imgLightboxImg" src="" alt="Зображення відходів">
+</div>
+
+<!-- ══════════ PROFILE DRAWER ════════════════════════════════════════════ -->
+<div class="profile-overlay hidden" id="profileOverlay">
+  <div class="profile-drawer">
+    <div class="profile-drawer-header">
+      <span class="profile-drawer-title">Профіль</span>
+      <button class="profile-drawer-close" id="profileClose" aria-label="Закрити">✕</button>
+    </div>
+    <div class="profile-drawer-body">
+
+      <!-- User info -->
+      <div class="profile-avatar-row">
+        <div class="profile-avatar-lg">{% if request.user.full_name %}{{ request.user.full_name|slice:":1"|upper }}{% else %}{{ request.user.email|slice:":1"|upper }}{% endif %}</div>
+        <div>
+          <div class="profile-user-name">{{ request.user.full_name|default:"—" }}</div>
+          <div class="profile-user-email">{{ request.user.email }}</div>
+        </div>
+      </div>
+
+      <!-- Password change -->
+      <div class="profile-section-label">Змінити пароль</div>
+      <form id="profilePwForm" novalidate>
+        <input type="hidden" autocomplete="username" value="{{ request.user.email }}">
+
+        <div class="profile-field">
+          <label>Поточний пароль</label>
+          <div class="profile-pw-wrap">
+            <input type="password" name="current_password" autocomplete="current-password" placeholder="••••••••">
+            <button type="button" class="profile-pw-eye" aria-label="Показати пароль">
+              <svg class="icon-hide" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              <svg class="icon-show" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <p class="profile-field-error" id="err-current_password"></p>
+        </div>
+
+        <div class="profile-field">
+          <label>Новий пароль</label>
+          <div class="profile-pw-wrap">
+            <input type="password" name="new_password" autocomplete="new-password" placeholder="Мінімум 8 символів">
+            <button type="button" class="profile-pw-eye" aria-label="Показати пароль">
+              <svg class="icon-hide" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              <svg class="icon-show" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <p class="profile-field-error" id="err-new_password"></p>
+        </div>
+
+        <div class="profile-field">
+          <label>Підтвердження нового пароля</label>
+          <div class="profile-pw-wrap">
+            <input type="password" name="new_password_confirm" autocomplete="new-password" placeholder="Повторіть новий пароль">
+            <button type="button" class="profile-pw-eye" aria-label="Показати пароль">
+              <svg class="icon-hide" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              <svg class="icon-show" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <p class="profile-field-error" id="err-new_password_confirm"></p>
+        </div>
+
+        <button type="submit" class="profile-save-btn" id="profileSaveBtn">Зберегти пароль</button>
+        <div class="profile-msg" id="profileMsg"></div>
+      </form>
+
+      <!-- Danger zone -->
+      <div class="profile-danger-zone">
+        <div class="profile-danger-label">Небезпечна зона</div>
+
+        <button type="button" class="delete-account-btn" id="deleteAccountBtn">
+          Видалити акаунт
+        </button>
+
+        <div class="delete-confirm-area hidden" id="deleteConfirmArea">
+          <div class="delete-warning-box">
+            Цю дію неможливо скасувати. Всі ваші аналізи та дані будуть видалені назавжди.
+          </div>
+          <form id="deleteForm" novalidate>
+            <input type="hidden" autocomplete="username" value="{{ request.user.email }}">
+            <div class="profile-field">
+              <label>Введіть пароль для підтвердження</label>
+              <div class="profile-pw-wrap">
+                <input type="password" id="deletePasswordInput" name="password" autocomplete="current-password" placeholder="Ваш пароль">
+                <button type="button" class="profile-pw-eye" aria-label="Показати пароль">
+                  <svg class="icon-hide" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  <svg class="icon-show" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <p class="profile-field-error" id="err-delete-password"></p>
+            </div>
+            <button type="submit" class="delete-confirm-btn" id="deleteConfirmBtn">
+              Так, видалити мій акаунт
+            </button>
+            <button type="button" class="delete-cancel-btn" id="deleteCancelBtn">
+              Скасувати
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div><!-- /profile-drawer-body -->
+  </div><!-- /profile-drawer -->
+</div><!-- /profile-overlay -->
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════════
+   Config
+════════════════════════════════════════════════════════════════════════════ */
+const UPLOAD_URL = "{% url 'analyses:create' %}";
+const TERMINAL   = new Set(['done', 'review_needed', 'failed']);
+
+function getCsrf() {
+  const match = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+  return match ? match.split('=')[1] : '';
+}
+const POLL_MS    = 2000;
+const SLUG_TO_UK = {
+  concrete: 'Бетон', brick: 'Цегла', metal: 'Метал', wood: 'Деревина',
+  glass: 'Скло', plastic: 'Пластик', ceramic_tile: 'Керамічна плитка',
+  asphalt: 'Асфальт', gypsum: 'Гіпс/Гіпсокартон', insulation: 'Утеплювач',
+  mixed_debris: 'Змішані відходи', soil: 'Ґрунт',
+  hazardous: 'Небезпечні відходи', unknown: 'Невизначено',
+};
+const LOAD_MSGS  = [
+  'Завантаження зображення…',
+  'Ініціалізація AI моделі…',
+  'Аналіз будівельних матеріалів…',
+  'Класифікація відходів…',
+  'Формування результатів…',
+];
+
+/* ════════════════════════════════════════════════════════════════════════════
+   DOM helpers
+════════════════════════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const MODAL_STEPS = ['mUpload', 'mLoading', 'mResult', 'mError'];
+function showStep(name) {
+  MODAL_STEPS.forEach(id => $(id).classList.toggle('hidden', id !== name));
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Theme
+════════════════════════════════════════════════════════════════════════════ */
+function applyTheme(dark) {
+  document.body.classList.toggle('dark', dark);
+  $('themeBtn').textContent = dark ? '☀️' : '🌙';
+}
+
+applyTheme(localStorage.getItem('theme') === 'dark');
+
+$('themeBtn').addEventListener('click', () => {
+  const next = !document.body.classList.contains('dark');
+  localStorage.setItem('theme', next ? 'dark' : 'light');
+  applyTheme(next);
+});
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Upload modal — open / close
+════════════════════════════════════════════════════════════════════════════ */
+function openModal() {
+  _analysisCompleted = false;
+  resetModal();
+  $('uploadModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  $('uploadModal').classList.add('hidden');
+  document.body.style.overflow = '';
+  stopAll();
+  _viewingMode = false;
+}
+
+$('newAnalysisBtn').addEventListener('click', openModal);
+$('modalClose').addEventListener('click', closeModal);
+$('uploadModal').addEventListener('click', e => {
+  if (e.target === $('uploadModal')) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeLightbox(); }
+});
+
+// ── Image lightbox ────────────────────────────────────────────────────────── //
+function openLightbox(src) {
+  $('imgLightboxImg').src = src;
+  $('imgLightbox').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  $('imgLightbox').classList.add('hidden');
+  document.body.style.overflow = '';
+  $('imgLightboxImg').src = '';
+}
+
+// Click on overlay backdrop closes it; clicking the image itself does nothing
+$('imgLightbox').addEventListener('click', e => {
+  if (e.target === $('imgLightbox')) closeLightbox();
+});
+
+// Event delegation — catches both server-rendered and dynamically inserted thumbs
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('thumb')) openLightbox(e.target.src);
+});
+
+/* ════════════════════════════════════════════════════════════════════════════
+   File selection
+════════════════════════════════════════════════════════════════════════════ */
+$('mFileInput').addEventListener('change', onFile);
+
+$('mDropZone').addEventListener('dragover', e => {
+  e.preventDefault();
+  $('mDropZone').classList.add('drag-over');
+});
+$('mDropZone').addEventListener('dragleave', () =>
+  $('mDropZone').classList.remove('drag-over')
+);
+$('mDropZone').addEventListener('drop', e => {
+  e.preventDefault();
+  $('mDropZone').classList.remove('drag-over');
+  const f = e.dataTransfer?.files?.[0];
+  if (!f) return;
+  const dt = new DataTransfer();
+  dt.items.add(f);
+  $('mFileInput').files = dt.files;
+  onFile();
+});
+
+function onFile() {
+  const f = $('mFileInput').files[0];
+  if (!f) return;
+  $('mPreviewImg').src = URL.createObjectURL(f);
+  $('mPreviewName').textContent = `${f.name}  ·  ${(f.size / 1024).toFixed(1)} KB`;
+  $('mPreview').style.display = 'block';
+  $('mUploadBtn').disabled = false;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Upload + poll
+════════════════════════════════════════════════════════════════════════════ */
+let pollTimer          = null;
+let msgTimer           = null;
+let msgIdx             = 0;
+let _analysisCompleted = false;
+let _viewingMode       = false;
+
+$('mUploadBtn').addEventListener('click', async () => {
+  const f = $('mFileInput').files[0];
+  if (!f) return;
+
+  stopAll();
+  showStep('mLoading');
+  startMsgs();
+
+  const fd = new FormData();
+  fd.append('image', f);
+
+  try {
+    const res  = await fetch(UPLOAD_URL, { method: 'POST', headers: { 'X-CSRFToken': getCsrf() }, body: fd });
+    const data = await res.json();
+
+    if (res.status === 202 && data?.data?.poll_url) {
+      startPoll(data.data.poll_url);
+    } else {
+      fail(data?.error?.message || `Помилка завантаження (HTTP ${res.status})`);
+    }
+  } catch (e) {
+    fail('Мережева помилка: ' + e.message);
+  }
+});
+
+function startPoll(url) {
+  pollTimer = setInterval(async () => {
+    try {
+      const res  = await fetch(url);
+      const data = await res.json();
+      const s    = data?.data?.status;
+      if (!TERMINAL.has(s)) return;
+      clearInterval(pollTimer);
+      pollTimer = null;
+      s === 'failed' ? fail('Аналіз завершився з помилкою.') : showResult(data.data);
+    } catch (e) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+      fail('Помилка опитування: ' + e.message);
+    }
+  }, POLL_MS);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Result display
+════════════════════════════════════════════════════════════════════════════ */
+function showResult(data) {
+  stopMsgs();
+  showStep('mResult');
+
+  const preds = Array.isArray(data.predictions) ? data.predictions : [];
+  const rawLabel = (preds[0] && (preds[0].label_uk || preds[0].raw_label || preds[0].class))
+                 || data.top_class || '';
+  const pct = data.top_confidence != null ? Math.round(data.top_confidence * 100) : 0;
+
+  // ── Waste name ──────────────────────────────────────────────────────────── //
+  const isUnknown = !rawLabel || rawLabel === 'unknown' || rawLabel === '—';
+  const nameEl = $('mWasteName');
+  if (isUnknown) {
+    nameEl.textContent = 'Невизначений тип відходів';
+    nameEl.classList.add('unknown');
+  } else {
+    nameEl.textContent = rawLabel;
+    nameEl.classList.remove('unknown');
+  }
+
+  // ── Confidence bar ──────────────────────────────────────────────────────── //
+  const LOW_THRESHOLD = 5;
+  const isLow = pct < LOW_THRESHOLD;
+  $('mConfPct').textContent = pct + '%';
+  $('mConfPct').classList.toggle('low', isLow);
+  $('mConfTrack').classList.toggle('low', isLow);
+  requestAnimationFrame(() => {
+    $('mConfFill').style.width = pct + '%';
+    $('mConfFill').classList.toggle('low', isLow);
+  });
+
+  // ── Eco badge — hide entirely when missing ──────────────────────────────── //
+  const eco = data.ecological_score;
+  if (eco != null) {
+    const cls  = eco >= 7 ? 'eco-high' : eco >= 4 ? 'eco-mid' : 'eco-low';
+    const icon = eco >= 7 ? '🌱' : eco >= 4 ? '⚠️' : '☣️';
+    $('mEcoBadge').innerHTML =
+      `<span class="m-eco-badge ${cls}">${icon} Екологічний бал: ${eco}/10</span>`;
+  } else if (data.needs_human_review) {
+    $('mEcoBadge').innerHTML =
+      '<span class="m-eco-badge eco-none">Екологічний бал: Очікує перевірки</span>';
+  } else {
+    $('mEcoBadge').innerHTML = '';
+  }
+
+  // ── Review warning ──────────────────────────────────────────────────────── //
+  if (data.needs_human_review) $('mReviewNote').classList.remove('hidden');
+
+  // ── PDF link ────────────────────────────────────────────────────────────── //
+  if (data.report_url) {
+    $('mPdfLink').href = data.report_url;
+    $('mPdfLink').classList.remove('hidden');
+  }
+
+  // ── Update background KPI cards + live table row ───────────────────────── //
+  _analysisCompleted = true;
+  _updateKpiAfterUpload(data.status, data.is_hazardous === true, data.ecological_score ?? null);
+  _insertTableRow(data);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   KPI update after upload
+════════════════════════════════════════════════════════════════════════════ */
+function _updateKpiAfterUpload(status, isHazardous, ecoScore) {
+  const inc = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = parseInt(el.textContent, 10) + 1;
+    return el;
+  };
+
+  // Total count
+  const totalEl = $('kpi-total');
+  const newTotal = totalEl ? parseInt(totalEl.textContent, 10) + 1 : 1;
+  if (totalEl) totalEl.textContent = newTotal;
+
+  // Count pill in history header
+  const pill = $('kpi-pill');
+  if (pill) {
+    pill.textContent = newTotal;
+    pill.style.display = '';
+  }
+
+  // "X завершено успішно" sub-count
+  if (status === 'done') inc('kpi-done');
+
+  // Review count + amber colour
+  if (status === 'review_needed') {
+    const reviewEl = $('kpi-review');
+    if (reviewEl) {
+      reviewEl.textContent = parseInt(reviewEl.textContent, 10) + 1;
+      reviewEl.classList.add('amber');
+    }
+  }
+
+  // Hazardous count
+  if (isHazardous) {
+    const hazEl = $('kpi-hazardous');
+    if (hazEl) {
+      hazEl.textContent = parseInt(hazEl.textContent, 10) + 1;
+      hazEl.classList.add('red');
+    }
+  }
+
+  // Eco score average
+  if (ecoScore != null) _updateEcoKpi(ecoScore, +1);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Modal action buttons
+════════════════════════════════════════════════════════════════════════════ */
+$('mNewBtn').addEventListener('click', resetModal);
+
+$('mDoneBtn').addEventListener('click', closeModal);
+
+$('mRetryBtn').addEventListener('click', resetModal);
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Helpers
+════════════════════════════════════════════════════════════════════════════ */
+function fail(msg) {
+  stopMsgs();
+  $('mErrorMsg').textContent = msg;
+  showStep('mError');
+}
+
+function resetModal() {
+  stopAll();
+  $('mFileInput').value       = '';
+  $('mPreview').style.display = 'none';
+  $('mUploadBtn').disabled    = true;
+  $('mConfFill').style.width  = '0%';
+  $('mReviewNote').classList.add('hidden');
+  $('mPdfLink').classList.add('hidden');
+  $('mPdfLink').href          = '#';
+  showStep('mUpload');
+}
+
+function startMsgs() {
+  stopMsgs();
+  msgIdx = 0;
+  $('mLoadingMsg').textContent = LOAD_MSGS[0];
+  msgTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % LOAD_MSGS.length;
+    $('mLoadingMsg').textContent = LOAD_MSGS[msgIdx];
+  }, 2200);
+}
+function stopMsgs() {
+  if (msgTimer) { clearInterval(msgTimer); msgTimer = null; }
+}
+function stopAll() {
+  stopMsgs();
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+async function openDetails(uuid) {
+  _viewingMode       = true;
+  _analysisCompleted = false;
+  resetModal();
+  $('uploadModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  showStep('mLoading');
+  $('mLoadingMsg').textContent = 'Завантаження результатів…';
+
+  try {
+    const res  = await fetch(`/api/v1/analyses/${uuid}/`);
+    const body = await res.json();
+    if (!res.ok) {
+      fail(body?.error?.message || `Помилка (HTTP ${res.status})`);
+      return;
+    }
+    const d = body.data;
+    if (d.status === 'failed') {
+      fail('Аналіз завершився з помилкою.');
+    } else if (d.status === 'pending' || d.status === 'processing') {
+      fail('Аналіз ще не завершено — спробуйте пізніше.');
+    } else {
+      showResult(d);
+    }
+  } catch (e) {
+    fail('Мережева помилка: ' + e.message);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Live table row insertion
+════════════════════════════════════════════════════════════════════════════ */
+const _SVG_INFO  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
+const _SVG_DL    = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+const _SVG_TRASH = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
+
+function _formatDate(iso) {
+  const d   = new Date(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return {
+    date: `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`,
+    time: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+  };
+}
+
+function _buildTableRow(data) {
+  const id        = data.id;
+  const st        = data.status;
+  const slug      = data.top_class || '';
+  const labelUk   = SLUG_TO_UK[slug] || '—';
+  const isHaz     = data.is_hazardous === true ? 'true' : 'false';
+  const eco       = data.ecological_score != null ? data.ecological_score : '';
+  const hasReport = st === 'done' || st === 'review_needed';
+  const fmt       = _formatDate(data.created_at);
+
+  const statusText = { done: 'Готово', review_needed: 'На перевірці', failed: 'Помилка', processing: 'Обробляється' }[st] || 'Очікує';
+  const typeCell   = (st === 'done' || st === 'review_needed')
+    ? labelUk
+    : `<span style="color:var(--muted)">—</span>`;
+  const pdfBtn = hasReport
+    ? `<a href="/api/v1/reports/${id}/download/" class="action-btn action-btn-pdf" target="_blank" rel="noopener">${_SVG_DL} PDF</a>`
+    : '';
+
+  const tr = document.createElement('tr');
+  tr.dataset.ts        = data.created_at;
+  tr.dataset.type      = slug;
+  tr.dataset.label     = labelUk;
+  tr.dataset.status    = st;
+  tr.dataset.hazardous = isHaz;
+  tr.dataset.eco       = eco;
+  tr.innerHTML = `
+    <td class="col-img"><img class="thumb" src="/api/v1/analyses/${id}/image/" alt="Зображення відходів" loading="lazy"></td>
+    <td class="col-date" style="color:var(--muted)">${fmt.date}<br><span style="font-size:0.8em">${fmt.time}</span></td>
+    <td class="col-type" style="font-weight:600">${typeCell}</td>
+    <td class="col-stat"><span class="badge badge-${st}">${statusText}</span></td>
+    <td class="col-acts"><div class="actions">
+      <button class="action-btn" onclick="openDetails('${id}')">${_SVG_INFO} Деталі</button>
+      ${pdfBtn}
+      <button class="action-btn action-btn-delete" data-url="/api/v1/analyses/${id}/" onclick="deleteAnalysis(this)">${_SVG_TRASH} Видалити</button>
+    </div></td>`;
+  return tr;
+}
+
+function _insertTableRow(data) {
+  let tbody = document.querySelector('#historyTable tbody');
+
+  if (!tbody) {
+    const wrap = document.createElement('div');
+    wrap.className = 'table-wrap';
+    wrap.innerHTML = `
+      <table id="historyTable">
+        <thead><tr>
+          <th class="col-img">Зображення</th>
+          <th class="col-date sort-th sort-active" data-sort="date" data-dir="desc">Дата / Час <span class="sort-icon">↓</span></th>
+          <th class="col-type sort-th" data-sort="type" data-dir="none">Тип відходів <span class="sort-icon">⇅</span></th>
+          <th class="col-stat">Статус</th>
+          <th class="col-acts">Дії</th>
+        </tr></thead>
+        <tbody>
+          <tr id="noFilterResults" style="display:none">
+            <td colspan="5" style="text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:0.875rem">Жодних результатів за обраними фільтрами</td>
+          </tr>
+        </tbody>
+      </table>`;
+
+    const bar = document.createElement('div');
+    bar.className = 'page-size-bar';
+    bar.id = 'paginationBar';
+    bar.innerHTML = `
+      <div class="page-size-label">Рядків на сторінці:
+        <select class="page-size-select" id="pageSizeSelect">
+          <option value="5">5</option><option value="10" selected>10</option>
+          <option value="25">25</option><option value="50">50</option><option value="0">Всі</option>
+        </select>
+      </div>
+      <div class="pagination" id="paginationControls" style="margin-top:0"></div>`;
+
+    const emptyEl = document.querySelector('.empty-state');
+    if (emptyEl) {
+      emptyEl.parentNode.insertBefore(wrap, emptyEl);
+      emptyEl.parentNode.insertBefore(bar, emptyEl);
+      emptyEl.remove();
+    }
+    tbody = wrap.querySelector('tbody');
+
+    const row     = _buildTableRow(data);
+    const noResEl = tbody.querySelector('#noFilterResults');
+    tbody.insertBefore(row, noResEl);
+    initTableBehaviors();
+    return;
+  }
+
+  const row     = _buildTableRow(data);
+  const noResEl = document.getElementById('noFilterResults');
+  tbody.insertBefore(row, noResEl);
+
+  // Re-sort DOM to date desc so the new (newest) row leads the table
+  const allRows = Array.from(tbody.querySelectorAll('tr:not(#noFilterResults)'));
+  allRows.sort((a, b) => new Date(b.dataset.ts) - new Date(a.dataset.ts));
+  allRows.forEach(r => tbody.insertBefore(r, noResEl));
+
+  // Sync sort-header visuals to date desc
+  document.querySelectorAll('.sort-th').forEach(th => {
+    th.dataset.dir = 'none';
+    const icon = th.querySelector('.sort-icon');
+    if (icon) icon.textContent = '⇅';
+    th.classList.remove('sort-active');
+  });
+  const dateTh = document.querySelector('.sort-th[data-sort="date"]');
+  if (dateTh) {
+    dateTh.dataset.dir = 'desc';
+    const icon = dateTh.querySelector('.sort-icon');
+    if (icon) icon.textContent = '↓';
+    dateTh.classList.add('sort-active');
+  }
+
+  if (window._tableApplyFilters) window._tableApplyFilters();
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Client-side filter + sort + pagination
+════════════════════════════════════════════════════════════════════════════ */
+function initTableBehaviors() {
+  const tbody = document.querySelector('#historyTable tbody');
+  if (!tbody) return;
+
+  // ── State ──────────────────────────────────────────────────────────────── //
+  const active = { type: new Set(), status: new Set() };
+  let filteredRows = [];
+  let currentPage  = 1;
+  let pageSize     = 10;
+
+  function allDataRows() {
+    return Array.from(tbody.querySelectorAll('tr:not(#noFilterResults)'));
+  }
+
+  // ── Filter ─────────────────────────────────────────────────────────────── //
+  function applyFilters() {
+    const hasType   = active.type.size > 0;
+    const hasStatus = active.status.size > 0;
+
+    filteredRows = allDataRows().filter(row =>
+      (!hasType   || active.type.has(row.dataset.type))
+   && (!hasStatus || active.status.has(row.dataset.status))
+    );
+
+    setBadge('fcType',   active.type.size);
+    setBadge('fcStatus', active.status.size);
+    const anyActive = hasType || hasStatus;
+    document.getElementById('filterClear').style.display = anyActive ? '' : 'none';
+
+    renderPage(1);
+  }
+
+  function setBadge(id, count) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent    = count;
+    el.style.display  = count > 0 ? '' : 'none';
+  }
+
+  document.querySelectorAll('input[data-group]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.checked ? active[cb.dataset.group].add(cb.value)
+                 : active[cb.dataset.group].delete(cb.value);
+      applyFilters();
+    });
+  });
+
+  document.getElementById('filterClear').addEventListener('click', () => {
+    active.type.clear();
+    active.status.clear();
+    document.querySelectorAll('input[data-group]').forEach(cb => cb.checked = false);
+    applyFilters();
+  });
+
+  // ── Sort ──────────────────────────────────────────────────────────────── //
+  document.querySelectorAll('.sort-th').forEach(th => {
+    th.addEventListener('click', () => {
+      const col  = th.dataset.sort;
+      const next = th.dataset.dir === 'asc' ? 'desc' : 'asc';
+
+      document.querySelectorAll('.sort-th').forEach(h => {
+        h.dataset.dir = 'none';
+        h.querySelector('.sort-icon').textContent = '⇅';
+        h.classList.remove('sort-active');
+      });
+      th.dataset.dir = next;
+      th.querySelector('.sort-icon').textContent = next === 'asc' ? '↑' : '↓';
+      th.classList.add('sort-active');
+
+      const all = allDataRows();
+      all.sort((a, b) => {
+        if (col === 'date') {
+          const diff = new Date(a.dataset.ts) - new Date(b.dataset.ts);
+          return next === 'asc' ? diff : -diff;
+        }
+        if (col === 'type') {
+          const cmp = (a.dataset.label || '').localeCompare(b.dataset.label || '', 'uk');
+          return next === 'asc' ? cmp : -cmp;
+        }
+        return 0;
+      });
+
+      const placeholder = document.getElementById('noFilterResults');
+      all.forEach(row => tbody.insertBefore(row, placeholder));
+
+      applyFilters();
+    });
+  });
+
+  // ── Pagination ──────────────────────────────────────────────────────────── //
+  function renderPage(page) {
+    const total  = filteredRows.length;
+    const ps     = pageSize === 0 ? total : pageSize;
+    const pages  = Math.max(1, ps > 0 ? Math.ceil(total / ps) : 1);
+    currentPage  = Math.max(1, Math.min(page, pages));
+
+    const start = pageSize === 0 ? 0 : (currentPage - 1) * ps;
+    const end   = pageSize === 0 ? total : Math.min(start + ps, total);
+
+    allDataRows().forEach(row => { row.style.display = 'none'; });
+    filteredRows.forEach((row, i) => {
+      row.style.display = (i >= start && i < end) ? '' : 'none';
+    });
+
+    document.getElementById('noFilterResults').style.display = total === 0 ? '' : 'none';
+    buildPagination(currentPage, pages, total, start, end);
+  }
+
+  function buildPagination(page, pages, total, start, end) {
+    const ctrl = document.getElementById('paginationControls');
+    const bar  = document.getElementById('paginationBar');
+    if (!ctrl) return;
+    ctrl.innerHTML = '';
+    if (bar) bar.style.display = total === 0 ? 'none' : '';
+
+    if (total === 0) return;
+
+    const info = document.createElement('span');
+    info.className   = 'page-info';
+    info.textContent = `${start + 1}–${end} з ${total}`;
+    ctrl.appendChild(info);
+
+    if (pages <= 1) return;
+
+    ctrl.appendChild(makePageBtn('‹', page > 1, () => renderPage(page - 1)));
+
+    pageNums(page, pages).forEach(n => {
+      if (n === '…') {
+        const sp = document.createElement('span');
+        sp.className   = 'page-info';
+        sp.textContent = '…';
+        ctrl.appendChild(sp);
+      } else {
+        const btn = makePageBtn(n, true, () => renderPage(n));
+        if (n === page) btn.classList.add('active');
+        ctrl.appendChild(btn);
+      }
+    });
+
+    ctrl.appendChild(makePageBtn('›', page < pages, () => renderPage(page + 1)));
+  }
+
+  function makePageBtn(label, enabled, onClick) {
+    const btn = document.createElement('button');
+    btn.className   = 'page-btn';
+    btn.textContent = label;
+    btn.disabled    = !enabled;
+    if (enabled) btn.addEventListener('click', onClick);
+    return btn;
+  }
+
+  function pageNums(page, pages) {
+    if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
+    const nums = [1];
+    if (page > 3) nums.push('…');
+    for (let i = Math.max(2, page - 1); i <= Math.min(pages - 1, page + 1); i++) nums.push(i);
+    if (page < pages - 2) nums.push('…');
+    nums.push(pages);
+    return nums;
+  }
+
+  const selectorEl = document.getElementById('pageSizeSelect');
+  if (selectorEl) {
+    selectorEl.addEventListener('change', () => {
+      pageSize = parseInt(selectorEl.value, 10);
+      renderPage(1);
+    });
+  }
+
+  // ── Initial render ─────────────────────────────────────────────────────── //
+  window._tableApplyFilters = applyFilters;
+
+  // Called by deleteAnalysis() after row.remove() so pagination pulls in the
+  // next page's items without jumping back to page 1.
+  window._tableAfterDelete = function() {
+    const hasType   = active.type.size > 0;
+    const hasStatus = active.status.size > 0;
+    filteredRows = allDataRows().filter(row =>
+      (!hasType   || active.type.has(row.dataset.type))
+   && (!hasStatus || active.status.has(row.dataset.status))
+    );
+    // clamp currentPage in case we deleted the last row on the last page
+    renderPage(currentPage);
+  };
+
+  applyFilters();
+}
+initTableBehaviors();
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Filter dropdowns
+════════════════════════════════════════════════════════════════════════════ */
+function toggleFd(id) {
+  const target = document.getElementById(id);
+  const isOpen = target.classList.contains('open');
+  document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+  if (!isOpen) target.classList.add('open');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.filter-dropdown')) {
+    document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+  }
+});
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Eco score KPI helper
+════════════════════════════════════════════════════════════════════════════ */
+function _updateEcoKpi(score, direction /* +1 add | -1 remove */) {
+  const el = document.getElementById('kpi-eco');
+  if (!el) return;
+
+  let count = parseInt(el.dataset.count, 10) || 0;
+  let sum   = parseFloat(el.dataset.sum)    || 0;
+
+  count += direction;
+  sum   += direction * score;
+
+  el.dataset.count = count;
+  el.dataset.sum   = sum;
+
+  const valEl    = document.getElementById('kpi-eco-val');
+  const suffixEl = document.getElementById('kpi-eco-suffix');
+  const subEl    = document.getElementById('kpi-eco-sub');
+
+  if (count <= 0) {
+    el.className  = 'kpi-value';
+    valEl.textContent  = '—';
+    valEl.style.color  = 'var(--muted)';
+    suffixEl.style.display = 'none';
+    subEl.textContent  = 'немає даних';
+    return;
+  }
+
+  const avg = Math.round((sum / count) * 10) / 10;
+  valEl.textContent  = avg;
+  valEl.style.color  = '';
+  suffixEl.style.display = '';
+  subEl.textContent  = 'по завершених аналізах';
+
+  el.classList.remove('green', 'amber', 'red');
+  if (avg >= 7)      el.classList.add('green');
+  else if (avg >= 4) el.classList.add('amber');
+  else               el.classList.add('red');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Delete analysis
+════════════════════════════════════════════════════════════════════════════ */
+async function deleteAnalysis(btn) {
+  if (!confirm('Видалити цей аналіз? Цю дію не можна скасувати.')) return;
+
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  const row = btn.closest('tr');
+  const badge = row.querySelector('.badge');
+  const statusCls = badge
+    ? [...badge.classList].find(c => c.startsWith('badge-') && c !== 'badge')
+    : '';
+  const deletedStatus   = statusCls ? statusCls.replace('badge-', '') : '';
+  const deletedHazardous = row.dataset.hazardous === 'true';
+  const deletedEco       = row.dataset.eco !== '' ? parseFloat(row.dataset.eco) : null;
+
+  try {
+    const res = await fetch(btn.dataset.url, { method: 'DELETE', headers: { 'X-CSRFToken': getCsrf() } });
+    if (res.ok) {
+      row.remove();
+      _updateKpiAfterDelete(deletedStatus, deletedHazardous, deletedEco);
+      if (typeof window._tableAfterDelete === 'function') window._tableAfterDelete();
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = origHTML;
+    }
+  } catch {
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+  }
+}
+
+function _updateKpiAfterDelete(status, isHazardous, ecoScore) {
+  const dec = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = Math.max(0, parseInt(el.textContent, 10) - 1);
+    return el;
+  };
+
+  // Total count + history pill
+  const newTotal = Math.max(0, parseInt((document.getElementById('kpi-total') || {}).textContent, 10) - 1);
+  dec('kpi-total');
+  const pill = document.getElementById('kpi-pill');
+  if (pill) {
+    pill.textContent = newTotal;
+    if (newTotal === 0) pill.style.display = 'none';
+  }
+
+  // Status-specific counters
+  if (status === 'done') {
+    dec('kpi-done');
+  }
+  if (status === 'review_needed') {
+    const reviewEl = dec('kpi-review');
+    if (reviewEl) {
+      const remaining = parseInt(reviewEl.textContent, 10);
+      reviewEl.classList.toggle('amber', remaining > 0);
+    }
+  }
+
+  // Hazardous count
+  if (isHazardous) {
+    const hazEl = document.getElementById('kpi-hazardous');
+    if (hazEl) {
+      const newCount = Math.max(0, parseInt(hazEl.textContent, 10) - 1);
+      hazEl.textContent = newCount;
+      hazEl.classList.toggle('red', newCount > 0);
+    }
+  }
+
+  // Eco score average
+  if (ecoScore != null) _updateEcoKpi(ecoScore, -1);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Profile drawer
+════════════════════════════════════════════════════════════════════════════ */
+$('profileBtn').addEventListener('click', () => {
+  $('profileOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+});
+
+function closeProfile() {
+  $('profileOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+$('profileClose').addEventListener('click', closeProfile);
+$('profileOverlay').addEventListener('click', e => {
+  if (e.target === $('profileOverlay')) closeProfile();
+});
+
+// Show/hide toggles inside the drawer
+document.querySelectorAll('.profile-pw-eye').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = btn.closest('.profile-pw-wrap').querySelector('input');
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    btn.querySelector('.icon-hide').style.display = isHidden ? 'none' : '';
+    btn.querySelector('.icon-show').style.display = isHidden ? '' : 'none';
+    btn.setAttribute('aria-label', isHidden ? 'Приховати пароль' : 'Показати пароль');
+  });
+});
+
+// Password change submission
+$('profilePwForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const saveBtn = $('profileSaveBtn');
+  const msg     = $('profileMsg');
+
+  document.querySelectorAll('.profile-field-error').forEach(el => {
+    el.style.display = 'none'; el.textContent = '';
+  });
+  msg.style.display = 'none';
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Збереження…';
+
+  try {
+    const res  = await fetch('/profile/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCsrf() },
+      body: new FormData($('profilePwForm')),
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      $('profilePwForm').reset();
+      msg.textContent  = 'Пароль успішно змінено.';
+      msg.className    = 'profile-msg success';
+      msg.style.display = 'block';
+    } else {
+      if (data.errors) {
+        Object.entries(data.errors).forEach(([field, text]) => {
+          const el = document.getElementById('err-' + field);
+          if (el) { el.textContent = text.replace(/^\*\s*/, ''); el.style.display = 'block'; }
+        });
+      }
+      msg.textContent  = 'Виправте помилки та спробуйте знову.';
+      msg.className    = 'profile-msg error';
+      msg.style.display = 'block';
+    }
+  } catch {
+    msg.textContent  = 'Мережева помилка. Спробуйте ще раз.';
+    msg.className    = 'profile-msg error';
+    msg.style.display = 'block';
+  }
+
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Зберегти пароль';
+});
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Delete account
+════════════════════════════════════════════════════════════════════════════ */
+$('deleteAccountBtn').addEventListener('click', () => {
+  $('deleteConfirmArea').classList.remove('hidden');
+  $('deleteAccountBtn').classList.add('hidden');
+  $('deletePasswordInput').focus();
+});
+
+$('deleteCancelBtn').addEventListener('click', () => {
+  $('deleteConfirmArea').classList.add('hidden');
+  $('deleteAccountBtn').classList.remove('hidden');
+  $('deleteForm').reset();
+  const errEl = $('err-delete-password');
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+});
+
+$('deleteForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn   = $('deleteConfirmBtn');
+  const errEl = $('err-delete-password');
+
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Видалення…';
+
+  try {
+    const res  = await fetch('/profile/delete/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCsrf() },
+      body: new FormData($('deleteForm')),
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      window.location.href = '/login/';
+    } else {
+      const msg = data.errors?.password ?? data.errors?.non_field_errors ?? 'Невірний пароль.';
+      errEl.textContent = msg.replace(/^\*\s*/, '');
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Так, видалити мій акаунт';
+    }
+  } catch {
+    btn.disabled = false;
+    btn.textContent = 'Так, видалити мій акаунт';
+  }
+});
+</script>
+</body>
+</html>

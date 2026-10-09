@@ -1,0 +1,23 @@
+services:
+  web:
+    build:
+      # Показуємо Docker, де шукати Dockerfile та контекст збірки бекенду
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      # Синхронізуємо локальний код з папки backend із папкою /app в контейнері
+      - ./backend:/app
+      # Монтуємо папку weights з кореня mvp всередину контейнера за шляхом /app/weights
+      - ./weights:/app/weights
+    ports:
+      - "8000:8000"
+    env_file:
+      # Підтягуємо змінні оточення з файлу .env, що лежить у корені mvp
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=materra.settings.development
+    # Послідовно накочуємо міграції та запускаємо локальний сервер розробки
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py create_dev_superuser &&
+             python manage.py runserver 0.0.0.0:8000"

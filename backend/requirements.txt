@@ -1,0 +1,22 @@
+# Web Framework
+Django>=5.0,<5.1
+djangorestframework>=3.15,<3.16
+
+# Task Queue
+celery>=5.3,<5.4
+redis>=5.0,<5.1
+
+# Image Processing & AI Inference (CPU-only)
+Pillow>=10.2,<10.3
+transformers>=4.38,<5.0
+torch>=2.2.0
+
+# OCR — hazard label detection
+pytesseract>=0.3
+
+# Report generation
+matplotlib>=3.8
+reportlab>=4.1
+
+# Database Client
+psycopg2-binary>=2.9,<3.0
